@@ -7,3 +7,8 @@
 - RNN模型(循环神经网络模型)
 - LSTM模型
 - GRU模型
+
+# Prerequisties
+```shell
+pip install torchtext
+```
