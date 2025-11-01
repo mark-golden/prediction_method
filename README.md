@@ -10,5 +10,5 @@
 
 # Prerequisties
 ```shell
-pip install torchtext
+pip install datasets
 ```
