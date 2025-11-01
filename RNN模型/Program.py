@@ -19,7 +19,11 @@ consolelogger = logging.getLogger('ConsoleOutput')
 filelogger = logging.getLogger()
 
 """
+<<<<<<< HEAD
 	函数功能: 
+=======
+	函数功能: 主程序
+>>>>>>> c41141e81ebf026d0f2d77ac50aaaa312480a686
 	输入: 
 	输出:  
 """
