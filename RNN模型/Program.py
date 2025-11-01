@@ -162,23 +162,31 @@ def read_data():
 			tokens = tokenize(text)
 			# 转索引（未知词→0）
 			indices = [self.word2idx.get(tok, 0) for tok in tokens[:self.max_len]]
+			# filelogger.info(f"indices的形状:{torch.tensor(indices, dtype=torch.long).shape}")
 			return torch.tensor(indices, dtype=torch.long), torch.tensor(label, dtype=torch.long)
 
 	# ================================
 	# 动态批次填充函数
 	# ================================
 	def collate_fn(batch):
+		# 将 batch 解包为两个元组：文本序列列表和对应的标签列表
 		texts, labels = zip(*batch)
+		# 对文本张量列表进行填充，使其在同一批次中具有相同长度
 		padded_texts = pad_sequence(texts, batch_first=True, padding_value=pad_idx)
+		# 将标签列表转换为 LongTensor 并与填充后的文本一起返回
 		return padded_texts, torch.tensor(labels)
 
 	# ================================
 	# 构建 DataLoader
 	# ================================
+	# 构造训练集 Dataset 实例（将 IMDb 训练数据、词表和最大长度传入）
 	train_dataset = IMDBDataset(train_data, word2idx, max_len)
+	# 构造测试集 Dataset 实例（将 IMDb 测试数据、词表和最大长度传入）
 	test_dataset = IMDBDataset(test_data, word2idx, max_len)
 
+	# 为训练集创建 DataLoader：使用批量大小、打乱数据并指定 collate_fn 进行动态填充
 	train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=collate_fn)
+	# 为测试集创建 DataLoader：不打乱数据，使用相同的 collate_fn 进行动态填充
 	test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, collate_fn=collate_fn)
 
 	return train_loader, test_loader, embeddings_matrix, pad_idx
@@ -255,6 +263,10 @@ def train_model(model, train_loader, criterion, optimizer, device, num_epochs):
 		correct, total = 0, 0
 
 		for texts, labels in train_loader:
+			# 检查输入形状
+			## 碰到第一个batch时打印形状
+			# if epoch == 0:
+			# 	filelogger.info(f"输入文本形状: {texts.shape}, 标签形状: {labels.shape}")
 			texts, labels = texts.to(device), labels.to(device)
 
 			# 清空梯度
@@ -340,13 +352,13 @@ if __name__ == '__main__':
 	optimizer = torch.optim.Adam(model.parameters(), lr=1e-3)
 
 	# 4️⃣ 训练模型
-	num_epochs = 50  # 训练轮数
+	num_epochs = 3  # 训练轮数
 	train_model(model, train_loader, criterion, optimizer, device, num_epochs)
 
 	# 5️⃣ 测试模型
 	test_acc = evaluate_model(model, test_loader, device)
 	filelogger.info(f"最终测试集准确率: {test_acc:.4f}")
-	
+
 
 
 
